@@ -1,4 +1,5 @@
 mod vec3;
+use vec3::*;
 
 fn main() {
     let img_w = 256;
@@ -10,14 +11,12 @@ fn main() {
     for j in (0..img_h).rev() {
         eprint!("\rScanlines remaining: {:>3}", j);
         for i in 0..img_w {
-            let r = i as f64 / (img_w as f64 - 1.0);
-            let g = j as f64 / (img_h as f64 - 1.0);
-            let b = 0.25;
-
-            let ir = (r * 255.0)as u8;
-            let ig = (g * 255.0) as u8;
-            let ib = (b * 255.0) as u8;
-            println!("{} {} {}", ir, ig, ib);
+            let color = Color {
+                r: i as f64 / (img_w as f64 - 1.0),
+                g: 0.25,
+                b: j as f64 / (img_h as f64 - 1.0),
+            };
+            color.write();
         }
     }
     eprintln!("");
