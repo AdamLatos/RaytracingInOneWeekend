@@ -3,7 +3,18 @@ use vec3::*;
 mod ray;
 use ray::*;
 
+fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> bool {
+    let a = ray.dir.dot(ray.dir);
+    let b = 2.0 * ray.dir.dot(ray.orig - *center);
+    let c = (ray.orig - *center).dot(ray.orig - *center) - (radius * radius);
+    let delta = b * b - 4.0 * a * c;
+    delta > 0.0
+}
+
 fn ray_color(ray: &Ray) -> Color {
+    if hit_sphere(&Point3::new(0.0,0.0,-3.0), 1.0, ray) {
+        return Color::new(1.0, 0.0, 0.0);
+    }
     let unit_dir = unit_vec3(ray.dir);
     let t = 0.5 * (unit_dir.y + 1.0);
     return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
