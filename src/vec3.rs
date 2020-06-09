@@ -1,7 +1,7 @@
 #![allow(dead_code)]
-use std::ops::{Neg, AddAssign, MulAssign, DivAssign, Add, Sub, Mul, Div};
-use std::fmt::{Display};
 use std::fmt;
+use std::fmt::Display;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -10,11 +10,11 @@ pub struct Vec3 {
     pub z: f64,
 }
 
-fn dot(u: Vec3, v: Vec3) -> f64 {
+pub fn dot(u: Vec3, v: Vec3) -> f64 {
     (u.x * v.x) + (u.y * v.y) + (u.z * v.z)
 }
 
-fn cross(u: Vec3, v: Vec3) -> Vec3 {
+pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
     Vec3 {
         x: (u.y * v.z) - (u.z * v.y),
         y: (u.z * v.x) - (u.x * v.z),
@@ -22,17 +22,13 @@ fn cross(u: Vec3, v: Vec3) -> Vec3 {
     }
 }
 
-fn unit(v: Vec3) -> Vec3 {
+pub fn unit_vec3(v: Vec3) -> Vec3 {
     v / v.len()
 }
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self {
-            x: x,
-            y: y,
-            z: z,
-        }
+        Self { x: x, y: y, z: z }
     }
 
     pub fn len_squared(self) -> f64 {
@@ -52,7 +48,7 @@ impl Vec3 {
     }
 
     pub fn unit(self) -> Vec3 {
-        unit(self)
+        unit_vec3(self)
     }
 }
 
@@ -60,9 +56,9 @@ impl Neg for Vec3 {
     type Output = Vec3;
 
     fn neg(mut self) -> Vec3 {
-        self.x = - self.x;
-        self.y = - self.y;
-        self.z = - self.z;
+        self.x = -self.x;
+        self.y = -self.y;
+        self.z = -self.z;
         self
     }
 }
@@ -112,6 +108,14 @@ impl Mul<f64> for Vec3 {
             y: self.y * other,
             z: self.z * other,
         }
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Vec3 {
+        other * self
     }
 }
 
@@ -167,6 +171,8 @@ impl Display for Vec3 {
     }
 }
 
+pub type Point3 = Vec3;
+
 pub struct Color {
     pub r: f64,
     pub g: f64,
@@ -175,15 +181,11 @@ pub struct Color {
 
 impl Color {
     pub fn new(r: f64, g: f64, b: f64) -> Self {
-        Self {
-            r: r,
-            g: g,
-            b: b,
-        }
+        Self { r, g, b }
     }
 
     pub fn write(self) {
-        let ir = (self.r * 255.9)as u8;
+        let ir = (self.r * 255.9) as u8;
         let ig = (self.g * 255.9) as u8;
         let ib = (self.b * 255.9) as u8;
         println!("{} {} {}", ir, ig, ib);
@@ -201,5 +203,37 @@ impl AddAssign for Color {
 impl Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {})", self.r, self.g, self.b)
+    }
+}
+
+impl Mul<f64> for Color {
+    type Output = Self;
+
+    fn mul(self, other: f64) -> Self {
+        Self {
+            r: self.r * other,
+            g: self.g * other,
+            b: self.b * other,
+        }
+    }
+}
+
+impl Mul<Color> for f64 {
+    type Output = Color;
+
+    fn mul(self, other: Color) -> Color {
+        other * self
+    }
+}
+
+impl Add for Color {
+    type Output = Color;
+
+    fn add(self, other: Color) -> Color {
+        Self {
+            r: self.r + other.r,
+            g: self.g + other.g,
+            b: self.b + other.b,
+        }
     }
 }
