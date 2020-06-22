@@ -9,7 +9,7 @@ pub struct Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool {
         let oc = ray.orig - self.center;
         let a = ray.dir.len_squared();
         let half_b = dot(oc, ray.dir);
@@ -22,14 +22,18 @@ impl Hittable for Sphere {
             if t1 < t_max && t1 > t_min {
                 record.t = t1;
                 record.p = ray.at(t1);
-                record.normal = (record.p - self.center) / self.radius;
+
+                let outward_normal = (record.p - self.center) / self.radius;
+                record.set_face_normal(ray, outward_normal);
                 return true
             }  
             let t2 = (-half_b + root) / a;
             if t2 < t_max && t2 > t_min {
                 record.t = t2;
                 record.p = ray.at(t2);
-                record.normal = (record.p - self.center) / self.radius;
+
+                let outward_normal = (record.p - self.center) / self.radius;
+                record.set_face_normal(ray, outward_normal);
                 return true
             } 
         }

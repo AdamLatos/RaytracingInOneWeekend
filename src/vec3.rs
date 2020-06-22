@@ -190,6 +190,13 @@ impl Color {
         let ib = (self.b * 255.9) as u8;
         println!("{} {} {}", ir, ig, ib);
     }
+
+    pub fn as_u8(self) -> (u8, u8, u8) {
+        let ir = (self.r * 255.9) as u8;
+        let ig = (self.g * 255.9) as u8;
+        let ib = (self.b * 255.9) as u8;
+        (ir, ig, ib)
+    }
 }
 
 impl AddAssign for Color {
