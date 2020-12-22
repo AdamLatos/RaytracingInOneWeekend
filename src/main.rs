@@ -12,10 +12,23 @@ use hittable_list::*;
 // extern crate minifb;
 // use minifb::{Key, Window, WindowOptions};
 
+
+const PI: f64 = std::f64::consts::PI;
+const INF: f64 = std::f64::INFINITY;
+
+fn deg_to_rad(degrees: f64) -> f64 {
+    return degrees * PI / 180.0;
+}
+
+#[allow(dead_code)]
+fn rad_to_deg(radians: f64) -> f64 {
+    return radians * 180.0 / PI;
+}
+
 fn ray_color(ray: &Ray, world: &HittableList) -> Color {
     // let sphere = Sphere{center: Point3::new(0.0, 0.0, -1.0), radius: 0.5};
     let mut hit_record = HitRecord::new();
-    if world.hit(ray, 0.0, f64::INFINITY, &mut hit_record) {
+    if world.hit(ray, 0.0, INF, &mut hit_record) {
         let norm = hit_record.normal;
         return 0.5 * Color::new(norm.x + 1.0, norm.y + 1.0, norm.z + 1.0);
     }
@@ -58,10 +71,6 @@ fn ppm_render() {
     world.add(Box::new(Sphere {
         center: Point3::new(0.0, -100.5, -1.0),
         radius: 100.0,
-    }));
-    world.add(Box::new(Sphere {
-        center: Point3::new(-3.0, 1.0, -3.0),
-        radius: 1.0,
     }));
 
     for j in (0..img_h).rev() {
