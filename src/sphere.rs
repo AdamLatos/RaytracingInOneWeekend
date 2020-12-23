@@ -25,8 +25,8 @@ impl Hittable for Sphere {
 
                 let outward_normal = (record.p - self.center) / self.radius;
                 record.set_face_normal(ray, outward_normal);
-                return true
-            }  
+                return true;
+            }
             let t2 = (-half_b + root) / a;
             if t2 < t_max && t2 > t_min {
                 record.t = t2;
@@ -34,8 +34,8 @@ impl Hittable for Sphere {
 
                 let outward_normal = (record.p - self.center) / self.radius;
                 record.set_face_normal(ray, outward_normal);
-                return true
-            } 
+                return true;
+            }
         }
         false
     }

@@ -8,25 +8,17 @@ mod sphere;
 use sphere::*;
 mod hittable_list;
 use hittable_list::*;
+mod camera;
+use camera::*;
+mod utils;
+use utils::*;
+
+use rand::random;
 
 // extern crate minifb;
 // use minifb::{Key, Window, WindowOptions};
 
-
-const PI: f64 = std::f64::consts::PI;
-const INF: f64 = std::f64::INFINITY;
-
-fn deg_to_rad(degrees: f64) -> f64 {
-    return degrees * PI / 180.0;
-}
-
-#[allow(dead_code)]
-fn rad_to_deg(radians: f64) -> f64 {
-    return radians * 180.0 / PI;
-}
-
 fn ray_color(ray: &Ray, world: &HittableList) -> Color {
-    // let sphere = Sphere{center: Point3::new(0.0, 0.0, -1.0), radius: 0.5};
     let mut hit_record = HitRecord::new();
     if world.hit(ray, 0.0, INF, &mut hit_record) {
         let norm = hit_record.normal;
@@ -37,29 +29,45 @@ fn ray_color(ray: &Ray, world: &HittableList) -> Color {
     return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
 }
 
+fn progress(val: u64, max: u64) {
+    use std::io::{stderr, Write};
+    if val == 0 {
+        eprintln!("");
+    }
+
+    let val = (val * 50) / max;
+
+    eprint!("\r");
+    eprint!("[");
+    for _ in 0..val {
+        eprint!("#");
+    }
+    for _ in 0..(50 - val) {
+        eprint!(" ");
+    }
+    eprint!("]");
+    stderr().flush().unwrap()
+}
+
 fn main() {
     // pixel_render()
     ppm_render()
 }
 
 fn ppm_render() {
+    // Image
+
     let aspect_ratio = 16.0 / 9.0;
-    let img_w = 384;
+    let img_w = 500;
     let img_h = (img_w as f64 / aspect_ratio) as u64;
+    let samples_per_pixel = 16;
+
     eprintln!("Starting render");
     println!("P3");
     println!("{}, {}", img_w, img_h);
     println!("255");
 
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Point3::new(0.0, 0.0, 0.0);
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - (horizontal / 2.0) - (vertical / 2.0) - Vec3::new(0.0, 0.0, focal_length);
+    // World
 
     let mut world = HittableList {
         objects: Vec::new(),
@@ -73,16 +81,20 @@ fn ppm_render() {
         radius: 100.0,
     }));
 
+    // Camera
+    let cam = Camera::new();
+
     for j in (0..img_h).rev() {
-        // eprint!("\rScanlines remaining: {:>3}", j);
+        progress(img_h - j, img_h);
         for i in 0..img_w {
-            let u = i as f64 / (img_w - 1) as f64;
-            let v = j as f64 / (img_h - 1) as f64;
-            let r = Ray::new(
-                origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
-            );
-            ray_color(&r, &world).write();
+            let mut pixel_color = Color::default();
+            for s in 0..samples_per_pixel {
+                let u = (i as f64 + random::<f64>()) / (img_w - 1) as f64;
+                let v = (j as f64 + random::<f64>()) / (img_h - 1) as f64;
+                let r = cam.get_ray(u, v);
+                pixel_color += ray_color(&r, &world);
+            }
+            pixel_color.write(samples_per_pixel);
         }
     }
     eprintln!("");

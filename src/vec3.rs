@@ -173,6 +173,7 @@ impl Display for Vec3 {
 
 pub type Point3 = Vec3;
 
+#[derive(Default)]
 pub struct Color {
     pub r: f64,
     pub g: f64,
@@ -184,10 +185,16 @@ impl Color {
         Self { r, g, b }
     }
 
-    pub fn write(self) {
-        let ir = (self.r * 255.9) as u8;
-        let ig = (self.g * 255.9) as u8;
-        let ib = (self.b * 255.9) as u8;
+    pub fn write(self, samples_per_pixel: usize) {
+        let scale = 1.0 / samples_per_pixel as f64;
+        let r = self.r * scale;
+        let g = self.g * scale;
+        let b = self.b * scale;
+
+        let ir = (r * 255.9) as u8;
+        let ig = (g * 255.9) as u8;
+        let ib = (b * 255.9) as u8;
+
         println!("{} {} {}", ir, ig, ib);
     }
 
